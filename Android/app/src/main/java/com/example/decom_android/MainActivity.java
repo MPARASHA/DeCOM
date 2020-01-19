@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -27,7 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
     ImageView imageView;
@@ -79,10 +79,13 @@ public class MainActivity extends AppCompatActivity {
 
                             for (int i = 0; i < textBlocks.size(); i++) {
                                 TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
+                                Log.d("MANZU",textBlock.getValue() );
                                 imageText += textBlock.getValue();                   // return string
                             }
                             TextView imageTextView = findViewById(R.id.textView);
+                            imageTextView.setMovementMethod(new ScrollingMovementMethod());
                             imageTextView.setText(imageText);
+                            imageTextView.setVisibility(View.VISIBLE);
                         }
                     }
                     break;
