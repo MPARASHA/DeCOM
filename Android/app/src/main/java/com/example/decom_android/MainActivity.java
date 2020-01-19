@@ -14,6 +14,8 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.URLUtil;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -37,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ImageButton Cam = findViewById(R.id.imageButton);
-        ImageButton Gall = findViewById(R.id.imageButton2);
+        Button Gall = findViewById(R.id.imageButton2);
 
 
         Cam.setOnClickListener(new View.OnClickListener(){
@@ -48,6 +50,38 @@ public class MainActivity extends AppCompatActivity {
                 dispatchTakePictureIntent();
 
             }
+        });
+
+        Gall.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                TextView textView = findViewById(R.id.textView);
+                if(textView.getText().toString() != ""){
+                    boolean isValid = URLUtil.isValidUrl( textView.getText().toString()  );
+                            if(isValid){
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(textView.getText().toString()));
+                                startActivity(browserIntent);
+                                Log.d("PPPOOPOO","https");
+
+                            }
+                            else{
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/#q=" + textView.getText().toString()));
+                                startActivity(browserIntent);
+                                Log.d("PPPOOPOO","search");
+                            }
+
+
+
+
+                            }
+
+                        }
+
+
+
+
+
+
         });
 
     }

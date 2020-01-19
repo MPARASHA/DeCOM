@@ -31,12 +31,12 @@
         android:backgroundTint="@color/red"
         />
 
-    <ImageButton
+    <Button
         android:id="@+id/imageButton2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:srcCompat="@drawable/ic_photo_album_black_24dp"
         android:backgroundTint="@color/red"
+        android:text="Search or Open Link"
         />
 
     <ImageView
