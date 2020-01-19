@@ -27,7 +27,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
     ImageView imageView;
@@ -83,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                             TextView imageTextView = findViewById(R.id.textView);
                             imageTextView.setText(imageText);
+                            imageTextView.setVisibility(View.VISIBLE);
                         }
                     }
                     break;
