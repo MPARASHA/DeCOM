@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -78,9 +79,11 @@ public class MainActivity extends AppCompatActivity {
 
                             for (int i = 0; i < textBlocks.size(); i++) {
                                 TextBlock textBlock = textBlocks.get(textBlocks.keyAt(i));
+                                Log.d("MANZU",textBlock.getValue() );
                                 imageText += textBlock.getValue();                   // return string
                             }
                             TextView imageTextView = findViewById(R.id.textView);
+                            imageTextView.setMovementMethod(new ScrollingMovementMethod());
                             imageTextView.setText(imageText);
                             imageTextView.setVisibility(View.VISIBLE);
                         }
