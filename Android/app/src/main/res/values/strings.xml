@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">DeCOM-Android</string>
+    <string name="no_connection">No internet connection! Cannot be translated!</string>
 </resources>

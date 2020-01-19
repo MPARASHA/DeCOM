@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -26,13 +27,20 @@ import com.google.android.gms.vision.text.TextRecognizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.cloud.translate.*;
+
+
 
 public class MainActivity extends AppCompatActivity {
     static final int REQUEST_TAKE_PHOTO = 1;
     String mCurrentPhotoPath;
     ImageView imageView;
+    Translate translate;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         ImageButton Cam = findViewById(R.id.imageButton);
         Button Gall = findViewById(R.id.imageButton2);
+        Button Trans = findViewById(R.id.imageButton3);
 
 
         Cam.setOnClickListener(new View.OnClickListener(){
@@ -78,12 +87,48 @@ public class MainActivity extends AppCompatActivity {
                         }
 
 
-
-
-
-
         });
 
+        Trans.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                TextView textView = findViewById(R.id.textView);
+                TextView textView1 =  findViewById(R.id.textView2);
+                if(textView.getText().toString() != ""){
+                    getTranslateService();
+                    String ogtext = textView.getText().toString();
+                    Translation translation = translate.translate(ogtext, Translate.TranslateOption.targetLanguage("en"), Translate.TranslateOption.model("base"));
+                    String translatedText = translation.getTranslatedText();
+
+                    //Translated text and original text are set to TextViews:
+                    textView1.setVisibility(View.VISIBLE);
+
+                    textView1.setText("Translation: " + translatedText);
+                }
+            }
+        });
+
+    }
+
+    private void getTranslateService() {
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        try (InputStream is = getResources().openRawResource(R.raw.credentials)) {
+
+            //Get credentials:
+            final GoogleCredentials myCredentials = GoogleCredentials.fromStream(is);
+
+            //Set credentials and get translate service:
+            TranslateOptions translateOptions = TranslateOptions.newBuilder().setCredentials(myCredentials).build();
+            translate = translateOptions.getService();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+
+        }
     }
 
     @Override
