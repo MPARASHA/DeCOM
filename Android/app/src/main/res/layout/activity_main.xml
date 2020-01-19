@@ -23,7 +23,8 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:srcCompat="@android:drawable/ic_menu_report_image" />
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:srcCompat="@android:drawable/ic_menu_report_image"
+        />
 </LinearLayout>
