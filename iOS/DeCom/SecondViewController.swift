@@ -13,7 +13,7 @@ import Vision
 class SecondViewController: UIViewController {
     
     // stores the label object on second view
-
+    
     @IBOutlet weak var imageLabel: UITextView!
     // image view object on second view
     @IBOutlet weak var viewImage: UIImageView!
@@ -30,18 +30,26 @@ class SecondViewController: UIViewController {
         // change label text accordingly
         imageLabel.text = thisIs
         
-
+        
     }
     
     @IBAction func searchPressed(_ sender: UIButton) {
         var query = thisIs!
+        query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        
         query = query.replacingOccurrences(of: " ", with: "+")
         
-        let url = URL(string: "https://www.google.com/search?q="+query)
+        let url = URL(string: query)
+        let url2 = URL(string: "https://www.google.com/search?q="+query)
         if let url = url {
             UIApplication.shared.open(url)
         }
-
+        
+        if let url = url2 {
+            UIApplication.shared.open(url)
+            
+        }
+        
         
     }
     

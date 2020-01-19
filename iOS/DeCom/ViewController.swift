@@ -20,6 +20,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     // identification
     var itIs: String! = ""
     var textRecognizer: VisionTextRecognizer!
+    var segmentOCR = true
+    
     
     private lazy var annotationOverlayView: UIView = {
       precondition(isViewLoaded)
@@ -43,6 +45,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
     }
     
+    
+    @IBAction func selectDetection(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 0:
+            segmentOCR = true
+        default:
+            segmentOCR = false
+        }
+        
+    }
+    
     /**
      function handles extracting image from image picker
      function creates segueway
@@ -56,14 +69,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             storeImage = userPickedImage
 
             
-            runTextRecognition(with: storeImage)
+            
             
             
             guard let ciimage = CIImage(image: userPickedImage) else{
                 fatalError("Could not convert to CI imge")
             }
-            
-//            detect(image: ciimage)
+            if segmentOCR == false {
+                detect(image: ciimage)
+            } else {
+                runTextRecognition(with: storeImage)
+            }
             
             
         }
@@ -117,39 +133,39 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
      Machine learning object detector
      */
     
-//    func detect(image: CIImage){
-//        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else{
-//            fatalError("Loading CoreML model Failed")
-//
-//        }
-//
-//        let request = VNCoreMLRequest(model: model){(request, error) in
-//            guard let results = request.results as? [VNClassificationObservation] else{
-//                fatalError("Model failed to process image")
-//            }
-//            // obtaining the most relevant result
-//
-//            if let firstResult = results.first{
-//                var firstObject = (firstResult.identifier).split(separator: ",").map(String.init)[0]
-//
-//                self.itIs = firstObject // itIs stores the detected object
-//
-//
-//            }
-//
-//        }
-//
-//        // request handler for obtaining image
-//        let handler = VNImageRequestHandler(ciImage: image)
-//
-//        do{
-//            try! handler.perform([request])
-//        }
-//        catch {
-//            print(error)
-//        }
-//
-//    }
+    func detect(image: CIImage){
+        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else{
+            fatalError("Loading CoreML model Failed")
+
+        }
+
+        let request = VNCoreMLRequest(model: model){(request, error) in
+            guard let results = request.results as? [VNClassificationObservation] else{
+                fatalError("Model failed to process image")
+            }
+            // obtaining the most relevant result
+
+            if let firstResult = results.first{
+                let firstObject = (firstResult.identifier).split(separator: ",").map(String.init)[0]
+
+                self.itIs = firstObject // itIs stores the detected object
+
+
+            }
+
+        }
+
+        // request handler for obtaining image
+        let handler = VNImageRequestHandler(ciImage: image)
+
+        do{
+            try! handler.perform([request])
+        }
+        catch {
+            print(error)
+        }
+
+    }
     
 
     
