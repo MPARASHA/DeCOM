@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
                                 Log.d("MANZU",textBlock.getValue() );
                                 imageText += textBlock.getValue();                   // return string
                             }
+                            Log.d("MANU", imageText);
                             TextView imageTextView = findViewById(R.id.textView);
                             imageTextView.setMovementMethod(new ScrollingMovementMethod());
                             imageTextView.setText(imageText);
