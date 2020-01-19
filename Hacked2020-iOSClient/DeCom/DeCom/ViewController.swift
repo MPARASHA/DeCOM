@@ -9,6 +9,8 @@
 import UIKit
 import CoreML
 import Vision
+import Firebase
+import FirebaseMLVision
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     // object handles the image picker: camera or gallery?
@@ -16,15 +18,28 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     // a temporary storage for user interface image
     var storeImage: UIImage!
     // identification
-    var itIs: String!
+    var itIs: String! = ""
+    var textRecognizer: VisionTextRecognizer!
+    
+    private lazy var annotationOverlayView: UIView = {
+      precondition(isViewLoaded)
+      let annotationOverlayView = UIView(frame: .zero)
+      annotationOverlayView.translatesAutoresizingMaskIntoConstraints = false
+      return annotationOverlayView
+    }()
     
     // constructor of the class
     override func viewDidLoad() {
         super.viewDidLoad()
+        FirebaseApp.configure()
         // set image picker to camera. do not allow editing
+        
+        let vision = Vision.vision()
+        textRecognizer = vision.onDeviceTextRecognizer()
+        
         imagePicker.delegate = self
         imagePicker.sourceType = .camera
-        imagePicker.allowsEditing = false
+        imagePicker.allowsEditing = true
         
     }
     
@@ -35,14 +50,21 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         // Obtaining user image as UIImage
         if let userPickedImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+            // Define the metadata for the image.
+
+             
             storeImage = userPickedImage
+
+            
+            runTextRecognition(with: storeImage)
             
             
             guard let ciimage = CIImage(image: userPickedImage) else{
                 fatalError("Could not convert to CI imge")
             }
             
-            detect(image: ciimage)
+//            detect(image: ciimage)
+            
             
         }
         //close the image picker window, go to segue way
@@ -53,43 +75,83 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
     }
     
+    func runTextRecognition(with image: UIImage){
+        let imageMetadata = VisionImageMetadata()
+//
+
+        let visionImage = VisionImage(image: storeImage)
+        imageMetadata.orientation = UIUtilities.visionImageOrientation(from: storeImage.imageOrientation)
+        visionImage.metadata = imageMetadata
+        
+        textRecognizer.process(visionImage){
+            (features, error) in self.processResult(from: features, error: error)
+        }
+        
+        
+    }
+    
+    func processResult(from text: VisionText?, error: Error?){
+//        removeFrames()
+        removeDetectionAnnotations()
+        
+//        self.itIs = text?.text
+        guard let features = text, let image = storeImage else {
+            print("problem with text")
+            return
+        }
+        for block in features.blocks {
+            for lines in block.lines {
+//                itIs+=lines.text
+                for element in lines.elements{
+                    itIs += element.text + " "
+                }
+            }
+        }
+        
+        print(itIs!)
+                
+    }
+
+    
     /**
      Machine learning object detector
      */
     
-    func detect(image: CIImage){
-        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else{
-            fatalError("Loading CoreML model Failed")
-            
-        }
-        
-        let request = VNCoreMLRequest(model: model){(request, error) in
-            guard let results = request.results as? [VNClassificationObservation] else{
-                fatalError("Model failed to process image")
-            }
-            // obtaining the most relevant result
-            
-            if let firstResult = results.first{
-                var firstObject = (firstResult.identifier).split(separator: ",").map(String.init)[0]
-                
-                self.itIs = firstObject // itIs stores the detected object
-                
-                
-            }
-            
-        }
-        
-        // request handler for obtaining image
-        let handler = VNImageRequestHandler(ciImage: image)
-        
-        do{
-            try! handler.perform([request])
-        }
-        catch {
-            print(error)
-        }
-        
-    }
+//    func detect(image: CIImage){
+//        guard let model = try? VNCoreMLModel(for: Inceptionv3().model) else{
+//            fatalError("Loading CoreML model Failed")
+//
+//        }
+//
+//        let request = VNCoreMLRequest(model: model){(request, error) in
+//            guard let results = request.results as? [VNClassificationObservation] else{
+//                fatalError("Model failed to process image")
+//            }
+//            // obtaining the most relevant result
+//
+//            if let firstResult = results.first{
+//                var firstObject = (firstResult.identifier).split(separator: ",").map(String.init)[0]
+//
+//                self.itIs = firstObject // itIs stores the detected object
+//
+//
+//            }
+//
+//        }
+//
+//        // request handler for obtaining image
+//        let handler = VNImageRequestHandler(ciImage: image)
+//
+//        do{
+//            try! handler.perform([request])
+//        }
+//        catch {
+//            print(error)
+//        }
+//
+//    }
+    
+
     
     // preparing segueway for data transfer
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -98,9 +160,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             if storeImage != nil {
                 destinationVC.thisImage = storeImage
                 destinationVC.thisIs = itIs
+                itIs = ""
                 
             }
         }
+    }
+    
+    private func removeDetectionAnnotations() {
+      for annotationView in annotationOverlayView.subviews {
+        annotationView.removeFromSuperview()
+      }
     }
     
     // checkes if camera button is pressed
@@ -124,6 +193,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         openGallary()
         
     }
+    
     
     // handles opening gallery
     func openGallary()

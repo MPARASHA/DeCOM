@@ -13,7 +13,8 @@ import Vision
 class SecondViewController: UIViewController {
     
     // stores the label object on second view
-    @IBOutlet weak var imageLabel: UILabel!
+
+    @IBOutlet weak var imageLabel: UITextView!
     // image view object on second view
     @IBOutlet weak var viewImage: UIImageView!
     // stores the image for the image view
@@ -32,5 +33,16 @@ class SecondViewController: UIViewController {
 
     }
     
+    @IBAction func searchPressed(_ sender: UIButton) {
+        var query = thisIs!
+        query = query.replacingOccurrences(of: " ", with: "+")
+        
+        let url = URL(string: "https://www.google.com/search?q="+query)
+        if let url = url {
+            UIApplication.shared.open(url)
+        }
 
+        
+    }
+    
 }
